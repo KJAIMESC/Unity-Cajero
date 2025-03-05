@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.Collections.Generic; // ✅ Needed for List<GameObject>
 
 public class CashInteraction : MonoBehaviour, IPointerClickHandler
 {
@@ -13,24 +14,22 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
     public bool isBill;
 
     private static int totalCash = 0;
-    private ObjectInteraction registerScript;
+    private static List<GameObject> spawnedCashObjects = new List<GameObject>();
 
     private void Start()
     {
-        GameObject register = GameObject.FindWithTag("Register");
-        if (register != null)
-        {
-            registerScript = register.GetComponent<ObjectInteraction>();
-        }
+        GameObject registerObject = GameObject.FindWithTag("Register");
+        if (registerObject == null)
+            Debug.LogError("❌ No GameObject with tag 'Register' found in the scene!");
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (registerScript != null && registerScript.IsRegisterOpen()) 
+        if (RegisterController.IsOpen())
         {
             SpawnCash();
             totalCash += cashValue;
-            Debug.Log("Cash Collected! Total: " + totalCash);
+            Debug.Log("✅ Cash Collected! Total: " + totalCash);
 
             if (cashCounterText != null)
             {
@@ -39,7 +38,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            Debug.Log("Register is closed! Can't collect cash.");
+            Debug.Log("⚠ Register is closed! Can't collect cash.");
         }
     }
 
@@ -66,6 +65,10 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
 
         GameObject spawnedCash = Instantiate(cashPrefab, spawnPosition, spawnRotation);
 
+        // ✅ Check if the object is being added
+        spawnedCashObjects.Add(spawnedCash);
+        Debug.Log("💵 Spawned cash: " + spawnedCash.name + " | Total in list: " + spawnedCashObjects.Count);
+
         Rigidbody rb = spawnedCash.GetComponent<Rigidbody>();
         if (rb == null)
         {
@@ -88,6 +91,8 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         pickupScript.SetValue(cashValue);
     }
 
+
+
     public static int GetTotalCash()
     {
         return totalCash;
@@ -96,5 +101,45 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
     public static void reduceTotalCash(int value)
     {
         totalCash -= value;
+    }
+
+    public void completeTransaction()
+    {
+        if (totalCash - ScreenController.GetChangeAmount() == 0)
+        {
+            Debug.Log("✅ Successful Transaction Activity");
+        }
+        else
+        {
+            Debug.Log("❌ Failed Transaction Activity (USER ERROR TO REPORT IN DATABASE)");
+        }
+        DeleteAllSpawnedCash();
+        totalCash = 0;
+    }
+
+    void DeleteAllSpawnedCash()
+    {
+        Debug.Log("🗑 Deleting all spawned cash objects... Total: " + spawnedCashObjects.Count);
+
+        foreach (GameObject cash in spawnedCashObjects)
+        {
+            if (cash != null)
+            {
+                CashPickup cashPickup = cash.GetComponent<CashPickup>();
+                if (cashPickup != null)
+                {
+                    Debug.Log("👆 Simulating click on: " + cash.name);
+                    cashPickup.OnPointerClick(null); // ✅ Simulate a click event
+                }
+                else
+                {
+                    Debug.LogWarning("⚠ Cash object has no CashPickup script: " + cash.name);
+                    Destroy(cash); // If no CashPickup, destroy it normally
+                }
+            }
+        }
+
+        spawnedCashObjects.Clear();
+        Debug.Log("✅ All cash objects deleted. Remaining: " + spawnedCashObjects.Count);
     }
 }
