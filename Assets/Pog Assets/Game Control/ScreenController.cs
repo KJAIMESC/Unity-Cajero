@@ -41,7 +41,7 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
     public void ActivateScreen()
     {
         isActive = true;
-        Debug.Log("✅ Screen is now clickable!");
+        Debug.Log("Screen is now clickable!");
     }
 
     public void UpdateRandomNumber()
@@ -82,7 +82,7 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
         if (cameraController != null)
         {
             cameraController.SwitchCameras();
-            Debug.Log("✅ Camera switched!");
+            Debug.Log("Camera switched!");
         }
         else
         {
@@ -98,7 +98,7 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        Debug.Log("✅ Screen clicked! Switching cameras...");
+        Debug.Log("Screen clicked! Switching cameras...");
         TriggerScreenSwitch();
     }
 }

@@ -90,7 +90,7 @@ public class CustomerMovement : MonoBehaviour
     public void setPaymentAmount()
     {
         int min = ScreenController.GetPaymentAmount();
-        int max = 1200000;
+        int max = ScreenController.GetPaymentAmount() + 300000;
         int step = 100;
         customerPaymentAmount = Random.Range(min / step, max / step) * step;
     }

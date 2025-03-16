@@ -65,9 +65,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
 
         GameObject spawnedCash = Instantiate(cashPrefab, spawnPosition, spawnRotation);
 
-        // ✅ Check if the object is being added
         spawnedCashObjects.Add(spawnedCash);
-        Debug.Log("💵 Spawned cash: " + spawnedCash.name + " | Total in list: " + spawnedCashObjects.Count);
 
         Rigidbody rb = spawnedCash.GetComponent<Rigidbody>();
         if (rb == null)
@@ -107,7 +105,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
     {
         if (totalCash - ScreenController.GetChangeAmount() == 0)
         {
-            Debug.Log("✅ Successful Transaction Activity");
+            Debug.Log("✅ Successful Transaction Activity (REPORT IN DATABASE)");
         }
         else
         {
@@ -128,13 +126,12 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
                 CashPickup cashPickup = cash.GetComponent<CashPickup>();
                 if (cashPickup != null)
                 {
-                    Debug.Log("👆 Simulating click on: " + cash.name);
-                    cashPickup.OnPointerClick(null); // ✅ Simulate a click event
+                    cashPickup.OnPointerClick(null);
                 }
                 else
                 {
                     Debug.LogWarning("⚠ Cash object has no CashPickup script: " + cash.name);
-                    Destroy(cash); // If no CashPickup, destroy it normally
+                    Destroy(cash);
                 }
             }
         }

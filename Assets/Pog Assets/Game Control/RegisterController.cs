@@ -45,7 +45,6 @@ public class RegisterController : MonoBehaviour
 
     public static bool IsOpen()
     {
-        Debug.Log("🔍 Checking register state: " + isOpen); // 🔹 Debugging log
         return isOpen;
     }
 }
