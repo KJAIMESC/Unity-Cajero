@@ -29,7 +29,6 @@ public class ButtonSounds : MonoBehaviour
     {
         if (SoundFXManager.instance != null)
         {
-            Debug.Log("🔊 Playing toggle sound");
             SoundFXManager.instance.PlaySound(SoundFXManager.instance.toggleSwitch, Vector3.zero, 1f);
         }
     }

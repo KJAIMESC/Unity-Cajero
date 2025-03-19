@@ -20,7 +20,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
     {
         GameObject registerObject = GameObject.FindWithTag("Register");
         if (registerObject == null)
-            Debug.LogError("❌ No GameObject with tag 'Register' found in the scene!");
+            Debug.LogError("No GameObject with tag 'Register' found in the scene!");
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -29,16 +29,11 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         {
             SpawnCash();
             totalCash += cashValue;
-            Debug.Log("✅ Cash Collected! Total: " + totalCash);
 
             if (cashCounterText != null)
             {
                 cashCounterText.text = totalCash.ToString();
             }
-        }
-        else
-        {
-            Debug.Log("⚠ Register is closed! Can't collect cash.");
         }
     }
 
@@ -105,11 +100,11 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
     {
         if (totalCash - ScreenController.GetChangeAmount() == 0)
         {
-            Debug.Log("✅ Successful Transaction Activity (REPORT IN DATABASE)");
+            Debug.Log("Successful Transaction Activity (REPORT IN DATABASE)");
         }
         else
         {
-            Debug.Log("❌ Failed Transaction Activity (USER ERROR TO REPORT IN DATABASE)");
+            Debug.Log("Failed Transaction Activity (USER ERROR TO REPORT IN DATABASE)");
         }
         DeleteAllSpawnedCash();
         totalCash = 0;
@@ -117,8 +112,6 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
 
     void DeleteAllSpawnedCash()
     {
-        Debug.Log("🗑 Deleting all spawned cash objects... Total: " + spawnedCashObjects.Count);
-
         foreach (GameObject cash in spawnedCashObjects)
         {
             if (cash != null)
@@ -130,13 +123,12 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
                 }
                 else
                 {
-                    Debug.LogWarning("⚠ Cash object has no CashPickup script: " + cash.name);
+                    Debug.LogWarning("Cash object has no CashPickup script: " + cash.name);
                     Destroy(cash);
                 }
             }
         }
 
         spawnedCashObjects.Clear();
-        Debug.Log("✅ All cash objects deleted. Remaining: " + spawnedCashObjects.Count);
     }
 }

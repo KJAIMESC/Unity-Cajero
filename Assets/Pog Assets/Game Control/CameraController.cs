@@ -2,43 +2,96 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    public Camera mainCamera;
-    public Camera transactionCamera;
+    private Camera cam;
+    private AudioListener audioListener;
 
-    void Start()
+    [SerializeField] private bool startActive = true;
+
+    void Awake()
     {
-        if (mainCamera == null)
+        cam = GetComponent<Camera>();
+        audioListener = GetComponent<AudioListener>();
+
+        if (cam == null)
         {
-            mainCamera = Camera.main;
+            Debug.LogError("CameraController is not attached to a Camera. Disabling script.");
+            enabled = false;
+            return;
         }
 
-        if (transactionCamera == null)
-        {
-            transactionCamera = GameObject.FindWithTag("2nd Camera")?.GetComponent<Camera>();
-        }
+        cam.gameObject.SetActive(startActive);
+        HandleAudioListener();
+    }
 
-        if (mainCamera != null && transactionCamera != null)
+    public void EnableCamera()
+    {
+        if (cam != null && !cam.gameObject.activeSelf)
         {
-            mainCamera.gameObject.SetActive(true);
-            transactionCamera.gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("One or both cameras are not assigned in CameraController!");
+            cam.gameObject.SetActive(true);
+            cam.depth = -1;
+            cam.clearFlags = CameraClearFlags.Depth;
+            cam.targetDisplay = 1; 
+
+            HandleAudioListener();
         }
     }
 
-    public void SwitchCameras()
+    public void DisableCamera()
     {
-        if (mainCamera != null && transactionCamera != null)
+        if (cam != null && cam.gameObject.activeSelf)
         {
-            bool isTransactionActive = transactionCamera.gameObject.activeSelf;
-            mainCamera.gameObject.SetActive(isTransactionActive);
-            transactionCamera.gameObject.SetActive(!isTransactionActive);
+            cam.gameObject.SetActive(false);
+            HandleAudioListener();
         }
-        else
+    }
+
+    public void SwitchToCamera()
+    {
+        if (cam == null)
         {
-            Debug.LogWarning("Cameras are not assigned in CameraController!");
+            Debug.LogError("SwitchToCamera failed: Camera component not found.");
+            return;
+        }
+
+        Camera[] allCameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        bool cameraActivated = false;
+
+        foreach (Camera c in allCameras)
+        {
+            if (c == cam)
+            {
+                c.gameObject.SetActive(true);
+                c.depth = 1;
+                c.clearFlags = CameraClearFlags.Skybox;
+                c.targetDisplay = 0;
+                cameraActivated = true;
+            }
+            else
+            {
+                c.gameObject.SetActive(false);
+            }
+        }
+
+        if (!cameraActivated)
+        {
+            Debug.LogError("No cameras were activated. Check camera settings.");
+        }
+
+        HandleAudioListener();
+    }
+
+    
+    private void HandleAudioListener()
+    {
+        AudioListener[] listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        foreach (AudioListener listener in listeners)
+        {
+            listener.enabled = false;
+        }
+
+        if (audioListener != null && cam.gameObject.activeSelf)
+        {
+            audioListener.enabled = true;
         }
     }
 }

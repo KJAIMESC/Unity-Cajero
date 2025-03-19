@@ -13,7 +13,6 @@ public class CashPickup : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         CashInteraction.reduceTotalCash(cashValue);
-        Debug.Log("Cash Removed! Total: " + CashInteraction.GetTotalCash());
         Destroy(gameObject);
     }
 }

@@ -1,47 +1,34 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class ScreenController : MonoBehaviour, IPointerClickHandler
 {
     public TextMeshProUGUI textBox;
     private static int paymentAmount;
-    private CameraController cameraController;
     private static int ChangeAmount;
 
     public bool isActive = false;
+    [SerializeField] private UnityEvent onClick;
 
     void Start()
     {
         if (textBox == null)
         {
-            Debug.LogError("❌ TextMeshProUGUI component not assigned in ScreenController!");
             return;
         }
-
-        cameraController = FindFirstObjectByType<CameraController>();
-
-        if (cameraController == null)
-        {
-            Debug.LogError("❌ CameraController not found in the scene!");
-        }
-
     
         Collider col = GetComponent<Collider>();
         if (col == null)
         {
-            Debug.LogError("❌ No Collider found on Screen! Add a BoxCollider or MeshCollider.");
-        }
-        else
-        {
-            Debug.Log("✅ Collider found on Screen: " + col.GetType().Name);
+            Debug.LogError("No Collider found on Screen! Add a BoxCollider or MeshCollider.");
         }
     }
 
     public void ActivateScreen()
     {
         isActive = true;
-        Debug.Log("Screen is now clickable!");
     }
 
     public void UpdateRandomNumber()
@@ -56,6 +43,11 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
         ChangeAmount = CustomerMovement.GetPaymentAmount() - paymentAmount;
         textBox.text = "Cambio: " + (ChangeAmount).ToString("N0");
     } 
+
+    public void UpdateText(string text)
+    {
+        textBox.text = text;
+    }
 
     private int GetRandomValue()
     {
@@ -77,28 +69,13 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
         return ChangeAmount;
     }
 
-    public void TriggerScreenSwitch()
-    {
-        if (cameraController != null)
-        {
-            cameraController.SwitchCameras();
-            Debug.Log("Camera switched!");
-        }
-        else
-        {
-            Debug.LogWarning("⚠ CameraController is not assigned!");
-        }
-    }
-
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!isActive)
         {
-            Debug.Log("⚠ Screen is not active yet! Click ignored.");
+            Debug.Log("Screen is not active yet! Click ignored.");
             return;
         }
-
-        Debug.Log("Screen clicked! Switching cameras...");
-        TriggerScreenSwitch();
+        onClick?.Invoke();
     }
 }

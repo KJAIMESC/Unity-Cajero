@@ -8,14 +8,10 @@ public class StartGameUI : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("StartGame() called!");
-
-        startMenuCanvas.SetActive(false);
         Time.timeScale = 1;
 
         if (gameTimer != null)
         {
-            Debug.Log("Starting the game timer...");
             gameTimer.StartTimer();
         }
         else
@@ -25,7 +21,6 @@ public class StartGameUI : MonoBehaviour
 
         if (customer != null)
         {
-            Debug.Log("Customer found, calling moveToRegister()...");
             customer.moveToRegister();
         }
         else

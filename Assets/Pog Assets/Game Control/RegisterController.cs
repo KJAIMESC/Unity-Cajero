@@ -15,16 +15,12 @@ public class RegisterController : MonoBehaviour
 
             if (animator == null)
             {
-                Debug.LogError("❌ Animator component is missing on the Register object!");
-            }
-            else
-            {
-                Debug.Log("✅ Animator successfully found on Register.");
+                Debug.LogError("Animator component is missing on the Register object!");
             }
         }
         else
         {
-            Debug.LogError("❌ No GameObject with tag 'Register' found in the scene!");
+            Debug.LogError("No GameObject with tag 'Register' found in the scene!");
         }
     }
 
@@ -32,15 +28,27 @@ public class RegisterController : MonoBehaviour
     {
         if (animator == null)
         {
-            Debug.LogError("❌ Cannot toggle Register! Animator is missing.");
+            Debug.LogError("Cannot toggle Register! Animator is missing.");
             return;
         }
 
-        isOpen = !isOpen; // ✅ Update isOpen when toggling
+        isOpen = !isOpen;
         string triggerName = isOpen ? "TrOpen" : "TrClose";
         animator.SetTrigger(triggerName);
 
-        Debug.Log("✅ Register toggled: " + triggerName + ", isOpen = " + isOpen); // 🔹 Debugging log
+        PlayRegisterSound();
+    }
+
+    private void PlayRegisterSound()
+    {
+        if (SoundFXManager.instance == null)
+        {
+            Debug.LogError("SoundFXManager instance is missing! Cannot play register sound.");
+            return;
+        }
+
+        AudioClip soundToPlay = isOpen ? SoundFXManager.instance.registerOpen : SoundFXManager.instance.registerClose;
+        SoundFXManager.instance.PlaySound(soundToPlay, transform.position, 2f);
     }
 
     public static bool IsOpen()
