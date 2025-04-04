@@ -31,5 +31,7 @@ public class ForcePlayButton : MonoBehaviour
     {
        SoundFXManager.instance.PlaySound(SoundFXManager.instance.Purchase, transform.position, 1f);
     }
+
+   
 }
 

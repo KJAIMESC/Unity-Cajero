@@ -1,12 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
-using System.Collections.Generic; // ✅ Needed for List<GameObject>
+using System.Collections.Generic; 
+using System.Collections;
 
 public class CashInteraction : MonoBehaviour, IPointerClickHandler
 {
     public GameObject cashPrefab;
     public Transform spawnPoint;
+
+    public Transform clickPoint;
     public int cashValue;
     public TMP_Text cashCounterText;
     public float spawnRadius = 0.05f;
@@ -28,6 +31,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         if (RegisterController.IsOpen())
         {
             SpawnCash();
+            PlayCashSound();
             totalCash += cashValue;
 
             if (cashCounterText != null)
@@ -62,6 +66,8 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
 
         spawnedCashObjects.Add(spawnedCash);
 
+        StartCoroutine(MoveInArc(spawnedCash, clickPoint, spawnPoint));
+
         Rigidbody rb = spawnedCash.GetComponent<Rigidbody>();
         if (rb == null)
         {
@@ -81,7 +87,50 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         {
             pickupScript = spawnedCash.AddComponent<CashPickup>();
         }
-        pickupScript.SetValue(cashValue);
+        pickupScript.SetValue(cashValue, isBill);
+    }
+
+    private IEnumerator MoveInArc(GameObject cashObject, Transform startPoint, Transform endPoint)
+    {
+        if (cashObject == null)
+        {
+            Debug.LogError("MoveInArc: Cash object is null!");
+            yield break;
+        }
+
+        if (startPoint == null || endPoint == null)
+        {
+            Debug.LogError("MoveInArc: Start or End Point is not assigned!");
+            yield break;
+        }
+
+        float duration = 0.5f; 
+        float elapsedTime = 0f;
+
+        Vector3 startPosition = startPoint.position;
+        Vector3 endPosition = endPoint.position;
+        Vector3 midPoint = (startPosition + endPosition) / 2 + Vector3.up * 1.5f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / duration;
+
+
+            Vector3 currentPos = Vector3.Lerp(Vector3.Lerp(startPosition, midPoint, t), Vector3.Lerp(midPoint, endPosition, t), t);
+
+            if (cashObject != null)
+            {
+                cashObject.transform.position = currentPos;
+            }
+            else
+            {
+                Debug.LogError("MoveInArc: Cash object was destroyed during animation!");
+                yield break;
+            }
+
+            yield return null;
+        }
     }
 
 
@@ -119,7 +168,7 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
                 CashPickup cashPickup = cash.GetComponent<CashPickup>();
                 if (cashPickup != null)
                 {
-                    cashPickup.OnPointerClick(null);
+                    cashPickup.OnPointerClick(null, true);
                 }
                 else
                 {
@@ -130,5 +179,24 @@ public class CashInteraction : MonoBehaviour, IPointerClickHandler
         }
 
         spawnedCashObjects.Clear();
+    }
+
+    public void PlayCashSound()
+    {
+        if (SoundFXManager.instance != null)
+        {
+            if (isBill)
+            {
+                SoundFXManager.instance.PlaySound(SoundFXManager.instance.Cash, transform.position, 1f);
+            }
+            else
+            {
+                SoundFXManager.instance.PlaySound(SoundFXManager.instance.Coin, transform.position, 1f);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("SoundFXManager instance is missing!");
+        }
     }
 }

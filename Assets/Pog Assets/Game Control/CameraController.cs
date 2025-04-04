@@ -23,6 +23,11 @@ public class CameraController : MonoBehaviour
         HandleAudioListener();
     }
 
+    public void Start()
+    {
+        HandleAudioListener();
+    }
+
     public void EnableCamera()
     {
         if (cam != null && !cam.gameObject.activeSelf)
@@ -84,14 +89,27 @@ public class CameraController : MonoBehaviour
     private void HandleAudioListener()
     {
         AudioListener[] listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+
         foreach (AudioListener listener in listeners)
         {
             listener.enabled = false;
         }
 
-        if (audioListener != null && cam.gameObject.activeSelf)
+        if (audioListener == null)
+        {
+            Debug.LogWarning($"CameraController: No AudioListener found on {cam.name}. Adding one.");
+            audioListener = cam.gameObject.GetComponent<AudioListener>();
+
+            if (audioListener == null)
+            {
+                audioListener = cam.gameObject.AddComponent<AudioListener>();
+            }
+        }
+
+        if (cam.gameObject.activeSelf)
         {
             audioListener.enabled = true;
         }
     }
+
 }

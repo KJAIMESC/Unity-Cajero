@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Register
   - 2nd Camera
+  - Correct
+  - Incorrect
+  - Draggable
   layers:
   - Default
   - TransparentFX

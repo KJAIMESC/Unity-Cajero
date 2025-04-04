@@ -90,12 +90,25 @@ public class SoundMixerManager : MonoBehaviour
         }
         else
         {
-            // Apply last saved volumes when unmuting
             audioMixer.SetFloat("MasterVolume", ConvertToDecibels(PlayerPrefs.GetFloat("MasterVolume", 0.75f)));
             audioMixer.SetFloat("MusicVolume", ConvertToDecibels(PlayerPrefs.GetFloat("MusicVolume", 0.75f)));
             audioMixer.SetFloat("SFXVolume", ConvertToDecibels(PlayerPrefs.GetFloat("SFXVolume", 0.75f)));
 
             muteButtonImage.sprite = unmutedSprite;
+        }
+    }
+
+    public void RefreshAllVolumes()
+    {
+        float masterVolume = PlayerPrefs.GetFloat("MasterVolume", 0.75f);
+        float musicVolume = PlayerPrefs.GetFloat("MusicVolume", 0.75f);
+        float sfxVolume = PlayerPrefs.GetFloat("SFXVolume", 0.75f);
+
+        if (!isMuted)
+        {
+            audioMixer.SetFloat("MasterVolume", ConvertToDecibels(masterVolume));
+            audioMixer.SetFloat("MusicVolume", ConvertToDecibels(musicVolume));
+            audioMixer.SetFloat("SFXVolume", ConvertToDecibels(sfxVolume));
         }
     }
 

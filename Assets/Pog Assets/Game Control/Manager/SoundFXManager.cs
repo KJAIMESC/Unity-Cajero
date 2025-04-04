@@ -22,6 +22,10 @@ public class SoundFXManager : MonoBehaviour
     [Header("Customer Sounds")]
     public AudioClip customerWalking;
 
+    [Header("Feedback Sounds")]
+    public AudioClip correctPlacement;
+    public AudioClip incorrectPlacement;
+
     [Header("Audio Sources")]
 
     [SerializeField] private AudioSource soundFXPrefab;

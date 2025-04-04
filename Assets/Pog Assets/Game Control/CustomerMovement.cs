@@ -1,6 +1,7 @@
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Events;
 
 public class CustomerMovement : MonoBehaviour
 {
@@ -12,7 +13,11 @@ public class CustomerMovement : MonoBehaviour
     [Header("Connections")]
     public ScreenController screenController;
     [SerializeField] GameTimer timer;
+    [SerializeField] private CustomerCashSpawner cashSpawner;
 
+    [Header("Events")]
+    [SerializeField] private UnityEvent onEnd;
+    private int exitCount = 0;
     private NavMeshAgent agent;
     private Animator animator;
     private bool atRegister = false;
@@ -78,6 +83,14 @@ public class CustomerMovement : MonoBehaviour
                     screenController.ActivateScreen();
                     hasUpdatedNumber = true;
                     setPaymentAmount();
+                    if (cashSpawner != null)
+                    {
+                        cashSpawner.SpawnCash(customerPaymentAmount);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("cashSpawner not assigned on CustomerMovement.");
+                    }
                 }
                 else
                 {
@@ -87,7 +100,23 @@ public class CustomerMovement : MonoBehaviour
 
             if (Vector3.Distance(transform.position, exitTarget.position) < 2f)
             {
-                ResetCustomer();
+                exitCount++;
+                if (exitCount > 4)
+                {
+                    if (onEnd != null)
+                    {
+                        onEnd.Invoke();
+                    }
+
+                    // Optional: Disable movement or animation after end
+                    agent.isStopped = true;
+                    animator.SetFloat("Speed", 0);
+                    this.enabled = false; // stops Update() from running
+                }
+                else
+                {
+                    ResetCustomer();
+                }
             }
         }
     }
@@ -139,10 +168,31 @@ public class CustomerMovement : MonoBehaviour
 
     public void setPaymentAmount()
     {
-        int min = ScreenController.GetPaymentAmount();
-        int max = ScreenController.GetPaymentAmount() + 300000;
         int step = 100;
-        customerPaymentAmount = Random.Range(min / step, max / step) * step;
+        int baseAmount = ScreenController.GetPaymentAmount();
+        int min = Mathf.Max(10000, baseAmount - Mathf.RoundToInt(baseAmount * 0.3f));
+
+        int max;
+        if (baseAmount <= 50000)
+            max = baseAmount + 20000;
+        else if (baseAmount <= 150000)
+            max = baseAmount + 50000;
+        else
+            max = baseAmount + 200000;
+
+        min = (min / step) * step;
+        max = (max / step) * step;
+        int rawAmount = Random.Range(min / step, max / step) * step;
+        float roundChance = Random.value;
+        if (roundChance < 0.25f)
+        {
+            rawAmount = Mathf.CeilToInt(rawAmount / 50000f) * 50000;
+        }
+        else if (roundChance < 0.35f)
+        {
+            rawAmount = Mathf.CeilToInt(rawAmount / 100000f) * 100000;
+        }
+        customerPaymentAmount = rawAmount;
     }
 
     public static int GetPaymentAmount()

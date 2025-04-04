@@ -7,6 +7,7 @@ public class SliderScript : MonoBehaviour
     [SerializeField] private Slider slider;
     [SerializeField] private TextMeshProUGUI sliderText;
     [SerializeField] private string playerPrefKey;
+    private SoundMixerManager mixerManager;
 
     void Start()
     {
@@ -16,6 +17,7 @@ public class SliderScript : MonoBehaviour
         UpdateText(savedValue); 
         slider.onValueChanged.AddListener(UpdateText);
         slider.onValueChanged.AddListener(SaveSliderValue); 
+        slider.onValueChanged.AddListener(UpdateMixer);
     }
 
     private void UpdateText(float value)
@@ -27,5 +29,28 @@ public class SliderScript : MonoBehaviour
     {
         PlayerPrefs.SetFloat(playerPrefKey, value);
         PlayerPrefs.Save();
+        SoundMixerManager soundMixer = FindFirstObjectByType<SoundMixerManager>();
+        if (soundMixer != null)
+        {
+            soundMixer.RefreshAllVolumes();
+        }
+    }
+
+    private void UpdateMixer(float value)
+    {
+        if (mixerManager == null) return;
+
+        switch (playerPrefKey)
+        {
+            case "MasterVolume":
+                mixerManager.SetMasterVolume(value);
+                break;
+            case "MusicVolume":
+                mixerManager.SetMusicVolume(value);
+                break;
+            case "SFXVolume":
+                mixerManager.SetSFXVolume(value);
+                break;
+        }
     }
 }

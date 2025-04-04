@@ -52,12 +52,15 @@ public class ScreenController : MonoBehaviour, IPointerClickHandler
     private int GetRandomValue()
     {
         int min = 1000;
-        int max = 1000000;
+        int max = 500000;
         int step = 100;
+        float t = Mathf.Pow(Random.value, 2.2f);
+        int rawValue = Mathf.RoundToInt(Mathf.Lerp(min, max, t));
+        int snappedValue = (rawValue / step) * step;
 
-        int randomValue = Random.Range(min / step, max / step) * step;
-        return randomValue;
+        return snappedValue;
     }
+
 
     public static int GetPaymentAmount()
     {
